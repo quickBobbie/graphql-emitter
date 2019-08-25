@@ -4,7 +4,7 @@ const {
     GraphQLObjectType
 } = require("graphql");
 
-module.exports = (function(objectType) {
+module.exports = function(objectType) {
     const OBJECT_TYPE = objectType;
 
     let query = { name: "Query", fields: {} };
@@ -50,5 +50,7 @@ module.exports = (function(objectType) {
         };
 
         return new GraphQLSchema(config);
-    }
-});
+    };
+
+    return this
+};
