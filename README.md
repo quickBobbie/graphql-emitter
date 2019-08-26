@@ -9,7 +9,7 @@ For the package to work correctly, you must install the graphql module
     ~~~~~
     npm install --save graphql
     
-    or
+    // or
     
     yarn add graphql
     ~~~~~
@@ -18,7 +18,7 @@ For the package to work correctly, you must install the graphql module
     ~~~~
     npm install --save git+https://github.com/quickBobbie/graphql-emitter.git
     
-    or
+    // or
     
     yarn add https://github.com/quickBobbie/graphql-emitter.git
     ~~~~
