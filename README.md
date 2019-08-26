@@ -34,12 +34,12 @@ Creating a GraphQL schema requires just 3 simple steps:
 
 2. Set GraphQL event
     ~~~~~
-    emitter.query("user", GRAPHQL_EVENT_ARGS, GRAPHQL_RESOLVE_CALLBACK);
-    emitter.mutation("user", GRAPHQL_EVENT_ARGS, GRAPHQL_RESOLVE_CALLBACK);
+    emitter.query("user", GRAPHQL_EVENT_ARGS, ...GRAPHQL_RESOLVE_CALLBACK);
+    emitter.mutation("user", GRAPHQL_EVENT_ARGS, ...GRAPHQL_RESOLVE_CALLBACK);
     
     // if returned type equal array
     
-    emitter.query("users[]", GRAPHQL_EVENT_ARGS, GRAPHQL_RESOLVE_CALLBACK);
+    emitter.query("users[]", GRAPHQL_EVENT_ARGS, ...GRAPHQL_RESOLVE_CALLBACK);
     ~~~~~
 
 3. Export GraphQl Schema
