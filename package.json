@@ -15,8 +15,5 @@
   "bugs": {
     "url": "https://github.com/quickBobbie/graphql-emitter/issues"
   },
-  "homepage": "https://github.com/quickBobbie/graphql-emitter#readme",
-  "dependencies": {
-    "graphql": "^14.5.3"
-  }
+  "homepage": "https://github.com/quickBobbie/graphql-emitter#readme"
 }
