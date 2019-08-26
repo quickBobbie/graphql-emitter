@@ -9,14 +9,30 @@ module.exports = function(objectType) {
 
     let query = { name: "Query", fields: {} };
     let mutation = { name: "Mutation", fields: {} };
+    
+    const resolve = (callbacks) => {
+        return async (root, args, context, info) => {
+            try {
+                for (let callback of callbacks) {
+                    let result = await callback(root, args, context, info);
 
-    const emitter = (type, eventString, args, callback) => {
+                    if (result) {
+                        return result;
+                    }
+                }
+            } catch(err) {
+                return err;
+            }
+        }
+    };
+
+    const emitter = (type, eventString, args, callbacks) => {
         let [isList, event] = parseEvent(eventString);
 
         let obj = {
             type: isList ? GraphQLList(OBJECT_TYPE) : OBJECT_TYPE,
             args: args,
-            resolve: callback
+            resolve: resolve(callbacks)
         };
 
         if (!obj.args || typeof obj.args !== "object" || Object.keys(obj.args).length === 0) {
@@ -35,12 +51,12 @@ module.exports = function(objectType) {
         return [isList, eventString.replace(/\[]/gi, '')];
     };
 
-    this.query = (event, args, callback) => {
-        emitter("query", event, args, callback);
+    this.query = (event, args, ...callbacks) => {
+        emitter("query", event, args, callbacks);
     };
 
-    this.mutation = (event, args, callback) => {
-        emitter("mutation", event, args, callback);
+    this.mutation = (event, args, ...callbacks) => {
+        emitter("mutation", event, args, callbacks);
     };
 
     this.export = () => {
@@ -52,5 +68,5 @@ module.exports = function(objectType) {
         return new GraphQLSchema(config);
     };
 
-    return this
+    return this;
 };
