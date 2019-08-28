@@ -7,8 +7,16 @@ const {
 module.exports = function(objectType) {
     const OBJECT_TYPE = objectType;
 
-    let query = { name: "Query", fields: {} };
-    let mutation = { name: "Mutation", fields: {} };
+    let config = {
+        query: {
+            name: "Query",
+            fields: {}
+        },
+        mutation: {
+            name: "Mutation",
+            fields: {}
+        }
+    };
     
     const resolve = (callbacks) => {
         return async (root, args, context, info) => {
@@ -38,11 +46,8 @@ module.exports = function(objectType) {
         if (!obj.args || typeof obj.args !== "object" || Object.keys(obj.args).length === 0) {
             delete obj.args;
         }
-        if (type === "query") {
-            query.fields[event] = obj;
-        } else if (type === "mutation") {
-            mutation.fields[event] = obj;
-        }
+
+        config[type].fields[event] = obj;
     };
 
     const parseEvent = (eventString) => {
@@ -60,10 +65,9 @@ module.exports = function(objectType) {
     };
 
     this.export = () => {
-        let config = {
-            query: new GraphQLObjectType(query),
-            mutation: new GraphQLObjectType(mutation)
-        };
+        for (let key in config) {
+            config[key] = new GraphQLObjectType(config[key]);
+        }
 
         return new GraphQLSchema(config);
     };
