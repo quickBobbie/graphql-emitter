@@ -17,7 +17,28 @@ module.exports = function(objectType) {
             fields: {}
         }
     };
-    
+
+    const parseEvent = (eventString) => {
+        let isList = eventString.indexOf("[]") !== -1;
+
+        return [isList, eventString.replace(/\[]/gi, '')];
+    };
+
+    const parseCallbacks = (callbacks) => {
+        let args = {};
+
+        if (!(callbacks[0] instanceof Promise) && typeof callbacks[0] !== 'function') {
+            args = callbacks[0];
+            callbacks = callbacks.slice(1);
+        }
+
+        callbacks = callbacks.filter(callback => {
+            return typeof callback === 'function';
+        });
+
+        return [args, callbacks];
+    };
+
     const resolve = (callbacks) => {
         return async (root, args, context, info) => {
             try {
@@ -34,34 +55,39 @@ module.exports = function(objectType) {
         }
     };
 
-    const emitter = (type, eventString, args, callbacks) => {
-        let [isList, event] = parseEvent(eventString);
+    const getField = (isList, args, callback) => {
+        let [gqlArgs, callbacks] = parseCallbacks(args);
 
-        let obj = {
+        if (!callbacks || !callbacks.length) callback && callback();
+
+        let field = {
             type: isList ? GraphQLList(OBJECT_TYPE) : OBJECT_TYPE,
-            args: args,
+            args: gqlArgs,
             resolve: resolve(callbacks)
         };
 
-        if (!obj.args || typeof obj.args !== "object" || Object.keys(obj.args).length === 0) {
-            delete obj.args;
+        for (let key in field) {
+            if (!field[key] || (typeof field[key] === 'object' && !Object.keys(field[key]).length)) {
+                delete field[key];
+            }
         }
 
-        config[type].fields[event] = obj;
+        return { ...field };
     };
 
-    const parseEvent = (eventString) => {
-        let isList = eventString.indexOf("[]") !== -1;
-
-        return [isList, eventString.replace(/\[]/gi, '')];
+    const emitter = (type, eventString, args) => {
+        let [isList, event] = parseEvent(eventString);
+        config[type].fields[event] = getField(isList, args, () => {
+            console.log(`No callbacks for ${ type } "${ event }"`)
+        });
     };
 
-    this.query = (event, args, ...callbacks) => {
-        emitter("query", event, args, callbacks);
+    this.query = (event, ...args) => {
+        emitter("query", event, args);
     };
 
-    this.mutation = (event, args, ...callbacks) => {
-        emitter("mutation", event, args, callbacks);
+    this.mutation = (event, ...args) => {
+        emitter("mutation", event, args);
     };
 
     this.export = () => {
